@@ -11,6 +11,8 @@ public interface DatabaseHandlerInterface {
     void closeConnection();
 
 
+    Group createGroup(String name);
+
     /**
      * Saves a group to the database.
      * @param group Group object to save.
@@ -26,11 +28,13 @@ public interface DatabaseHandlerInterface {
 
     List<Group> getGroups();
     List<Group> getGroups(UUID uuid);
-    List<Group> getGroups(UUID uuid, GroupPermissionLevel permissionLevel);
+    List<Group> getGroups(UUID uuid, GroupPermissionLevel permissionLevel, boolean exact);
 
     List<String> getGroupNames();
     List<String> getGroupNames(UUID uuid);
-    List<String> getGroupNames(UUID uuid, GroupPermissionLevel permissionLevel);
+    List<String> getGroupNames(UUID uuid, GroupPermissionLevel permissionLevel, boolean exact);
+
+    Group getGroup(int id);
 
     Group getGroup(String name);
     boolean changeGroupOwner(Group group, UUID uuid);
@@ -43,13 +47,14 @@ public interface DatabaseHandlerInterface {
     boolean removeUserFromGroup(UUID uuid, Group group);
 
     boolean changePrimaryGroup(UUID uuid, Group group);
-    boolean checkAccess(Group group, UUID uuid);
     boolean checkPrimary(Group group, UUID uuid);
 
     GroupPermissionLevel getPermissionLevel(Group group, UUID uuid);
 
     HashMap<UUID, GroupPermissionLevel> getMembers(Group group);
-    HashMap<UUID, GroupPermissionLevel> getMembers(Group group, GroupPermissionLevel exactPermissionLevel);
+    HashMap<UUID, GroupPermissionLevel> getMembers(Group group, GroupPermissionLevel permissionLevel, boolean exact);
 
     HashMap<UUID, GroupPermissionLevel> getPrimaryMembers(Group group);
+
+    HashMap<UUID, GroupPermissionLevel> getNonPrimaryMembers(Group group);
 }

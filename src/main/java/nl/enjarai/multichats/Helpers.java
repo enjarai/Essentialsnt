@@ -3,6 +3,7 @@ package nl.enjarai.multichats;
 import eu.pb4.placeholders.PlaceholderAPI;
 import eu.pb4.placeholders.TextParser;
 import me.lucko.fabric.api.permissions.v0.Permissions;
+import net.minecraft.network.packet.s2c.play.PlayerListS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
@@ -10,6 +11,7 @@ import nl.enjarai.multichats.types.Group;
 import nl.enjarai.multichats.types.GroupPermissionLevel;
 
 import java.util.HashMap;
+import java.util.UUID;
 
 public class Helpers {
     public static void sendToChat(Group group, ServerPlayerEntity sendingPlayer, String message) {
@@ -51,5 +53,19 @@ public class Helpers {
             }
         }
         return true;
+    }
+
+    public static void updatePlayerListEntry(UUID uuid) {
+        ServerPlayerEntity player = MultiChats.SERVER.getPlayerManager().getPlayer(uuid);
+        if (player != null) {
+            PlayerListS2CPacket packet = new PlayerListS2CPacket(PlayerListS2CPacket.Action.UPDATE_DISPLAY_NAME, player);
+            MultiChats.SERVER.getPlayerManager().sendToAll(packet);
+        }
+    }
+
+    public static void updatePlayerListEntry(UUID... uuids) {
+        for (UUID uuid : uuids) {
+            updatePlayerListEntry(uuid);
+        }
     }
 }

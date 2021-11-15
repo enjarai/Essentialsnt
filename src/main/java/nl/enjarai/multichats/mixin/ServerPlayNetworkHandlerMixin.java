@@ -1,12 +1,10 @@
 package nl.enjarai.multichats.mixin;
 
-import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.network.packet.c2s.play.ChatMessageC2SPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
 import nl.enjarai.multichats.Helpers;
-import nl.enjarai.multichats.MultiChats;
 import nl.enjarai.multichats.PlayerChatTracker;
 import nl.enjarai.multichats.types.Group;
 import org.spongepowered.asm.mixin.Mixin;
@@ -14,8 +12,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
-import java.util.Map;
 
 @Mixin(ServerPlayNetworkHandler.class)
 public class ServerPlayNetworkHandlerMixin {
@@ -38,7 +34,7 @@ public class ServerPlayNetworkHandlerMixin {
 
 		// Check for prefixes
 
-		for (Group group : MultiChats.DATABASE.getGroups(player.getUuid())) {
+		for (Group group : Group.getMemberships(player.getUuid())) {
 			if (group.prefix != null && message.toLowerCase().startsWith(group.prefix)) {
 				Helpers.sendToChat(group, player, message.substring(group.prefix.length()));
 				info.cancel();

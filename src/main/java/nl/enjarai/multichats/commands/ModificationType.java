@@ -11,7 +11,8 @@ public enum ModificationType {
     SETHOME(null, false, MultiChats.CONFIG.messages.homeSet),
     UNSETHOME(null, false, MultiChats.CONFIG.messages.homeUnset),
     DISPLAY_NAME("string", true, MultiChats.CONFIG.messages.modifyDisplayName),
-    DISPLAY_NAME_SHORT("string", true, MultiChats.CONFIG.messages.modifyDisplayNameShort);
+    DISPLAY_NAME_SHORT("string", true, MultiChats.CONFIG.messages.modifyDisplayNameShort),
+    RENAME("string", false, MultiChats.CONFIG.messages.modifyRenamed);
 
     public final String argumentType;
     public final boolean formatStringArg;

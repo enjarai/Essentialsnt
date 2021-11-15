@@ -1,6 +1,5 @@
 package nl.enjarai.multichats;
 
-import com.mojang.datafixers.kinds.IdF;
 import eu.pb4.placeholders.PlaceholderAPI;
 import eu.pb4.placeholders.PlaceholderResult;
 import eu.pb4.placeholders.TextParser;
@@ -12,7 +11,7 @@ public class Placeholders {
     public static void register() {
         PlaceholderAPI.register(new Identifier("multichats", "group_name"), (ctx) -> {
             if (ctx.hasPlayer()) {
-                Group group = MultiChats.DATABASE.getPrimaryGroup(ctx.getPlayer().getUuid());
+                Group group = Group.getPrimaryMembership(ctx.getPlayer().getUuid());
                 return PlaceholderResult.value(
                         group != null ? group.displayName : TextParser.parse(MultiChats.CONFIG.defaultGroupName));
             } else {
@@ -22,7 +21,7 @@ public class Placeholders {
 
         PlaceholderAPI.register(new Identifier("multichats", "spacer"), (ctx) -> {
             if (ctx.hasPlayer()) {
-                Group group = MultiChats.DATABASE.getPrimaryGroup(ctx.getPlayer().getUuid());
+                Group group = Group.getPrimaryMembership(ctx.getPlayer().getUuid());
                 return PlaceholderResult.value(group != null ? new LiteralText(" ") : LiteralText.EMPTY);
             } else {
                 return PlaceholderResult.invalid("No player!");

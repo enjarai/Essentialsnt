@@ -63,10 +63,12 @@ public class ConfigManager {
         public String modifyPrefix = "<dark_aqua>Set the prefix of <yellow>${group}</yellow> to <yellow>${string}</yellow>.";
         public String modifyDisplayName = "<dark_aqua>Set the display name of <yellow>${group}</yellow> to <yellow>${string}</yellow>.";
         public String modifyDisplayNameShort = "<dark_aqua>Set the short display name of <yellow>${group}</yellow> to <yellow>${string}</yellow>.";
+        public String modifyRenamed = "<dark_aqua>Renamed the alliance <yellow>${group}</yellow> to <yellow>${string}</yellow>.";
         public String resetPrefix = "<dark_aqua>The prefix of <yellow>${group}</yellow> has been reset.";
         public String groupInfo = "<dark_aqua><yellow>${group}</yellow>:\n  Prefix: <yellow>${prefix}</yellow>\n  Home: <yellow>${home}</yellow>";
         public String groupMemberList = "<dark_aqua>  Members:";
         public String groupMemberListEntry = "<aqua>    ${permissionLevel}: <yellow>${player}</yellow>";
+        public String groupPrimaryMemberListEntry = "<aqua>    ${permissionLevel}: <bold><yellow>${player}</yellow></bold>";
         public String groupMemberKicked = "<dark_aqua><yellow>${player}</yellow> was kicked from <yellow>${group}</yellow>.";
         public String homeSet = "<dark_aqua>Home for <yellow>${group}</yellow> set to your current location.";
         public String homeUnset = "<dark_aqua>Home for <yellow>${group}</yellow> unset.";

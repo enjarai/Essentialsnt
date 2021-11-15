@@ -1,6 +1,5 @@
 package nl.enjarai.multichats.commands;
 
-import com.google.gson.Gson;
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
@@ -19,9 +18,8 @@ import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.util.UserCache;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.RegistryKey;
 import nl.enjarai.multichats.ConfigManager;
+import nl.enjarai.multichats.Helpers;
 import nl.enjarai.multichats.MultiChats;
 import nl.enjarai.multichats.PlayerChatTracker;
 import nl.enjarai.multichats.types.Group;
@@ -30,11 +28,9 @@ import nl.enjarai.multichats.types.GroupPermissionLevel;
 import java.util.*;
 import java.util.regex.Pattern;
 
-import static net.minecraft.command.CommandSource.suggestMatching;
 import static net.minecraft.server.command.CommandManager.argument;
 import static net.minecraft.server.command.CommandManager.literal;
 import static nl.enjarai.multichats.MultiChats.*;
-import static nl.enjarai.multichats.commands.Predicates.inGroupPredicate;
 
 public class Commands {
     public static void register() {
@@ -46,7 +42,7 @@ public class Commands {
                 .then(argument("chat", StringArgumentType.string())
                     .executes(Commands::switchChatCommand)
                     .suggests((ctx, builder) -> CommandSource.suggestMatching(
-                            DATABASE.getGroupNames(ctx.getSource().getPlayer().getUuid()), builder))
+                            Group.getMembershipNames(ctx.getSource().getPlayer().getUuid()), builder))
                 )
             );
             dispatcher.register(literal("sc")
@@ -57,25 +53,6 @@ public class Commands {
                 .requires(Permissions.require("multichats.commands.multichats", 4))
                 .then(literal("reload")
                     .executes(Commands::reloadConfig)
-                )
-                .then(literal("create")
-                    .then(argument("name", StringArgumentType.string())
-                        .then(argument("prefix", StringArgumentType.string())
-                            .executes(Commands::createChat)
-                            .then(argument("displayName", StringArgumentType.string())
-                                .executes(Commands::createChat)
-                                .then(argument("displayNameShort", StringArgumentType.string())
-                                    .executes(Commands::createChat)
-                                )
-                            )
-                        )
-                    )
-                )
-                .then(literal("delete")
-                    .then(argument("name", StringArgumentType.string())
-                        .executes(Commands::deleteChat)
-                        .suggests((ctx, builder) -> suggestMatching(DATABASE.getGroupNames(), builder))
-                    )
                 )
             );
             LiteralCommandNode<ServerCommandSource> alliance = dispatcher.register(literal("alliance")
@@ -94,8 +71,8 @@ public class Commands {
                         .executes(Commands::deleteGroup)
                         .suggests((ctx, builder) -> CommandSource.suggestMatching(
                                 Permissions.check(ctx.getSource(), "multichats.admin.delete") ?
-                                DATABASE.getGroupNames() :
-                                DATABASE.getGroupNames(ctx.getSource().getPlayer().getUuid(), GroupPermissionLevel.OWNER), builder))
+                                Group.allNames() :
+                                Group.getMembershipNames(ctx.getSource().getPlayer().getUuid(), GroupPermissionLevel.OWNER), builder))
                     )
                 )
                 .then(literal("invite")
@@ -103,8 +80,8 @@ public class Commands {
                     .then(argument("name", StringArgumentType.string())
                         .suggests((ctx, builder) -> CommandSource.suggestMatching(
                                 Permissions.check(ctx.getSource(), "multichats.admin.invite") ?
-                                DATABASE.getGroupNames() :
-                                DATABASE.getGroupNames(ctx.getSource().getPlayer().getUuid(), GroupPermissionLevel.MANAGER), builder))
+                                Group.allNames() :
+                                Group.getMembershipNames(ctx.getSource().getPlayer().getUuid(), GroupPermissionLevel.MANAGER), builder))
                         .then(playerArgument("player")
                             .executes(Commands::inviteToGroup)
                         )
@@ -115,8 +92,8 @@ public class Commands {
                     .then(argument("name", StringArgumentType.string())
                         .suggests((ctx, builder) -> CommandSource.suggestMatching(
                             Permissions.check(ctx.getSource(), "multichats.admin.kick") ?
-                                    DATABASE.getGroupNames() :
-                                    DATABASE.getGroupNames(ctx.getSource().getPlayer().getUuid(), GroupPermissionLevel.MANAGER), builder))
+                                    Group.allNames() :
+                                    Group.getMembershipNames(ctx.getSource().getPlayer().getUuid(), GroupPermissionLevel.MANAGER), builder))
                         .then(playerArgument("player")
                             .executes(Commands::kickFromGroup)
                         )
@@ -132,21 +109,21 @@ public class Commands {
                     // .requires(inGroupPredicate())
                     .then(argument("name", StringArgumentType.string())
                         .suggests((ctx, builder) -> CommandSource.suggestMatching(
-                                DATABASE.getGroupNames(ctx.getSource().getPlayer().getUuid()), builder))
+                                Group.getMembershipNames(ctx.getSource().getPlayer().getUuid()), builder))
                         .executes(Commands::leaveGroup)
                     )
                 )
                 .then(literal("info")
                     .then(argument("name", StringArgumentType.string())
                         .suggests((ctx, builder) -> CommandSource.suggestMatching(
-                                DATABASE.getGroupNames(), builder))
+                                Group.allNames(), builder))
                         .executes(Commands::groupInfoMembers)
                     )
                 )
                 .then(literal("home")
                     .then(argument("name", StringArgumentType.string())
                         .suggests((ctx, builder) -> CommandSource.suggestMatching(
-                            DATABASE.getGroupNames(ctx.getSource().getPlayer().getUuid()), builder))
+                            Group.getMembershipNames(ctx.getSource().getPlayer().getUuid()), builder))
                         .executes(Commands::tpHome)
                     )
                     .executes(Commands::tpHome)
@@ -158,7 +135,7 @@ public class Commands {
                     .then(literal("set")
                         .then(argument("name", StringArgumentType.string())
                             .suggests((ctx, builder) -> CommandSource.suggestMatching(
-                                    DATABASE.getGroupNames(ctx.getSource().getPlayer().getUuid()), builder))
+                                    Group.getMembershipNames(ctx.getSource().getPlayer().getUuid()), builder))
                             .executes(ctx -> setPrimaryGroup(ctx, false))
                         )
                     )
@@ -168,8 +145,8 @@ public class Commands {
                     .then(argument("name", StringArgumentType.string())
                         .suggests((ctx, builder) -> CommandSource.suggestMatching(
                                 Permissions.check(ctx.getSource(), "multichats.admin.modify") ?
-                                DATABASE.getGroupNames() :
-                                DATABASE.getGroupNames(ctx.getSource().getPlayer().getUuid(), GroupPermissionLevel.OWNER), builder))
+                                Group.allNames() :
+                                Group.getMembershipNames(ctx.getSource().getPlayer().getUuid(), GroupPermissionLevel.OWNER), builder))
                         .then(literal("giveOwnership")
                             .then(playerArgument("player")
                                 .executes(ctx -> modifyGroup(ctx, ModificationType.SET_OWNER))
@@ -205,6 +182,11 @@ public class Commands {
                         .then(literal("displayNameShort")
                             .then(argument("string", StringArgumentType.string())
                                 .executes(ctx -> modifyGroup(ctx, ModificationType.DISPLAY_NAME_SHORT))
+                            )
+                        )
+                        .then(literal("rename")
+                            .then(argument("string", StringArgumentType.string())
+                                .executes(ctx -> modifyGroup(ctx, ModificationType.RENAME))
                             )
                         )
                         .then(literal("home")
@@ -248,19 +230,19 @@ public class Commands {
         ServerPlayerEntity player = ctx.getSource().getPlayer();
         
 
-        if (DATABASE.getGroup(name) != null) {
+        if (Group.get(name) != null) {
             ctx.getSource().sendFeedback(TextParser.parse(CONFIG.messages.existsError), true);
             return 1;
         }
 
-        if (!DATABASE.getGroups(player.getUuid(), GroupPermissionLevel.OWNER).isEmpty()) {
+        if (!Group.getMemberships(player.getUuid(), GroupPermissionLevel.OWNER).isEmpty()) {
             ctx.getSource().sendFeedback(TextParser.parse(CONFIG.messages.cantOwnTwoGroupsError), true);
             return 1;
         }
 
-        Group group = new Group(name);
+        Group group = Group.create(name);
         if (!(
-                group.save() &&
+                group != null &&
                 group.addMember(player.getUuid(), GroupPermissionLevel.OWNER, true)
         )) {
             ctx.getSource().sendFeedback(TextParser.parse(CONFIG.messages.unknownError), true);
@@ -286,13 +268,13 @@ public class Commands {
         ServerPlayerEntity player = ctx.getSource().getPlayer();
         
 
-        Group group = DATABASE.getGroup(name);
+        Group group = Group.get(name);
         if (group == null) {
             ctx.getSource().sendFeedback(TextParser.parse(CONFIG.messages.noGroupError), true);
             return 1;
         }
 
-        if (!(Permissions.check(player, "multichats.admin.delete") || group.checkOwner(player.getUuid()))) {
+        if (!(Permissions.check(player, "multichats.admin.delete") || group.checkAccess(player.getUuid(), GroupPermissionLevel.OWNER))) {
             ctx.getSource().sendFeedback(TextParser.parse(CONFIG.messages.noPermissionError), true);
             return 1;
         }
@@ -322,13 +304,13 @@ public class Commands {
         ServerPlayerEntity inviteFrom = ctx.getSource().getPlayer();
         if (inviteFrom == null) { return 1; }
 
-        Group group = DATABASE.getGroup(name);
+        Group group = Group.get(name);
         if (group == null) {
             ctx.getSource().sendFeedback(TextParser.parse(CONFIG.messages.noGroupError), true);
             return 1;
         }
 
-        if (!(Permissions.check(inviteFrom, "multichats.admin.invite") || group.checkManager(inviteFrom.getUuid()))) {
+        if (!(Permissions.check(inviteFrom, "multichats.admin.invite") || group.checkAccess(inviteFrom.getUuid(), GroupPermissionLevel.MANAGER))) {
             ctx.getSource().sendFeedback(TextParser.parse(CONFIG.messages.noPermissionError), true);
             return 1;
         }
@@ -379,7 +361,7 @@ public class Commands {
         String messageTo;
         String messageFrom;
         if (accept) {
-            if (!(invite.group.addMember(player.getUuid(), DATABASE.getPrimaryGroup(player.getUuid()) == null))) {
+            if (!(invite.group.addMember(player.getUuid(), Group.getPrimaryMembership(player.getUuid()) == null))) {
                 ctx.getSource().sendFeedback(TextParser.parse(CONFIG.messages.unknownError), true);
                 return 1;
             }
@@ -417,7 +399,7 @@ public class Commands {
         ServerPlayerEntity player = ctx.getSource().getPlayer();
         
 
-        Group group = DATABASE.getGroup(name);
+        Group group = Group.get(name);
         if (group == null) {
             ctx.getSource().sendFeedback(TextParser.parse(CONFIG.messages.noGroupError), true);
             return 1;
@@ -428,7 +410,7 @@ public class Commands {
             return 1;
         }
 
-        if (group.checkOwner(player.getUuid())) {
+        if (group.checkAccess(player.getUuid(), GroupPermissionLevel.OWNER)) {
             ctx.getSource().sendFeedback(TextParser.parse(CONFIG.messages.groupOwnerCantLeaveError), true);
             return 1;
         }
@@ -456,13 +438,13 @@ public class Commands {
 
         ServerPlayerEntity player = ctx.getSource().getPlayer();
 
-        Group group = DATABASE.getGroup(name);
+        Group group = Group.get(name);
         if (group == null) {
             ctx.getSource().sendFeedback(TextParser.parse(CONFIG.messages.noGroupError), true);
             return 1;
         }
 
-        if (!(Permissions.check(player, "multichats.admin.modify") || group.checkOwner(player.getUuid()))) {
+        if (!(Permissions.check(player, "multichats.admin.modify") || group.checkAccess(player.getUuid(), GroupPermissionLevel.OWNER))) {
             ctx.getSource().sendFeedback(TextParser.parse(CONFIG.messages.noPermissionError), true);
             return 1;
         }
@@ -513,9 +495,22 @@ public class Commands {
                         case DISPLAY_NAME -> {
                             group.displayName = TextParser.parse(arg);
                             success = group.save();
+                            Helpers.updatePlayerListEntry(group.getMembers().keySet().toArray(new UUID[0]));
                         }
                         case DISPLAY_NAME_SHORT -> {
                             group.displayNameShort = TextParser.parse(arg);
+                            success = group.save();
+                        }
+                        case RENAME -> {
+                            String newName = arg.toLowerCase(Locale.ROOT).replaceAll("\\s","");
+                            placeholders.put("string", new LiteralText(newName));
+
+                            if (Group.get(newName) != null) {
+                                error = CONFIG.messages.existsError;
+                                break;
+                            }
+
+                            group.name = newName;
                             success = group.save();
                         }
                     }
@@ -541,7 +536,7 @@ public class Commands {
 
                     switch (type) {
                         case SET_OWNER -> {
-                            if (!DATABASE.getGroups(uuid, GroupPermissionLevel.OWNER).isEmpty()) {
+                            if (!Group.getMemberships(uuid, GroupPermissionLevel.OWNER).isEmpty()) {
                                 error = CONFIG.messages.cantOwnTwoGroupsError;
                                 break;
                             }
@@ -596,13 +591,13 @@ public class Commands {
         ServerPlayerEntity sourcePlayer = ctx.getSource().getPlayer();
         if (sourcePlayer == null) { return 1; }
 
-        Group group = DATABASE.getGroup(name);
+        Group group = Group.get(name);
         if (group == null) {
             ctx.getSource().sendFeedback(TextParser.parse(CONFIG.messages.noGroupError), true);
             return 1;
         }
 
-        if (!(Permissions.check(sourcePlayer, "multichats.admin.kick") || group.checkManager(sourcePlayer.getUuid()))) {
+        if (!(Permissions.check(sourcePlayer, "multichats.admin.kick") || group.checkAccess(sourcePlayer.getUuid(), GroupPermissionLevel.MANAGER))) {
             ctx.getSource().sendFeedback(TextParser.parse(CONFIG.messages.noPermissionError), true);
             return 1;
         }
@@ -618,12 +613,12 @@ public class Commands {
             return 1;
         }
 
-        if (group.checkManager(kickPlayer.getId())) {
+        if (group.checkAccess(kickPlayer.getId(), GroupPermissionLevel.MANAGER)) {
             ctx.getSource().sendFeedback(TextParser.parse(CONFIG.messages.noPermissionError), true);
             return 1;
         }
 
-        DATABASE.removeUserFromGroup(kickPlayer.getId(), group);
+        group.removeMember(kickPlayer.getId());
 
 
         HashMap<String, Text> placeholders = new HashMap<>();
@@ -642,7 +637,7 @@ public class Commands {
     private static int groupInfoMembers(CommandContext<ServerCommandSource> ctx) {
         String name = ctx.getArgument("name", String.class);
 
-        Group group = DATABASE.getGroup(name);
+        Group group = Group.get(name);
         if (group == null) {
             ctx.getSource().sendFeedback(TextParser.parse(CONFIG.messages.noGroupError), true);
             return 1;
@@ -658,37 +653,23 @@ public class Commands {
                         "Unset" :
                         "%d, %d, %d".formatted((int) group.homePos.x, (int) group.homePos.y, (int) group.homePos.z)
                 ) :
-                "Not eligible (%d/%d members required)".formatted(group.getPrimaryMembers().size(), CONFIG.membersRequiredForHome)
+                "Not eligible (%d/%d primary members required)".formatted(group.getPrimaryMembers().size(), CONFIG.membersRequiredForHome)
         ));
 
         ctx.getSource().sendFeedback(PlaceholderAPI.parsePredefinedText(
                 TextParser.parse(CONFIG.messages.groupInfo),
                 PlaceholderAPI.PREDEFINED_PLACEHOLDER_PATTERN,
                 p1
-        ), true);
+        ), false);
 
         ctx.getSource().sendFeedback(PlaceholderAPI.parsePredefinedText(
                 TextParser.parse(CONFIG.messages.groupMemberList),
                 PlaceholderAPI.PREDEFINED_PLACEHOLDER_PATTERN,
                 p1
-        ), true);
+        ), false);
 
-        UserCache cache = SERVER.getUserCache();
-        for (Map.Entry<UUID, GroupPermissionLevel> set : group.getMembers().entrySet()) {
-            GameProfile player = cache.getByUuid(set.getKey()).orElse(null);
-            if (player == null) { continue; }
-
-            HashMap<String, Text> p2 = new HashMap<>();
-
-            p2.put("permissionLevel", TextParser.parse(set.getValue().displayName));
-            p2.put("player", new LiteralText(player.getName()));
-
-            ctx.getSource().sendFeedback(PlaceholderAPI.parsePredefinedText(
-                    TextParser.parse(CONFIG.messages.groupMemberListEntry),
-                    PlaceholderAPI.PREDEFINED_PLACEHOLDER_PATTERN,
-                    p2
-            ), true);
-        }
+        CommandHelpers.sendMemberList(ctx, group.getPrimaryMembers(), CONFIG.messages.groupPrimaryMemberListEntry);
+        CommandHelpers.sendMemberList(ctx, group.getNonPrimaryMembers(), CONFIG.messages.groupMemberListEntry);
         return 0;
     }
 
@@ -700,14 +681,14 @@ public class Commands {
 
         UUID uuid = player.getUuid();
         if (reset) {
-            if (!(DATABASE.changePrimaryGroup(uuid, null))) {
+            if (!(Group.setPrimary(uuid, null))) {
                 ctx.getSource().sendFeedback(TextParser.parse(CONFIG.messages.unknownError), true);
                 return 1;
             }
         } else {
             String name = ctx.getArgument("name", String.class);
 
-            Group group = DATABASE.getGroup(name);
+            Group group = Group.get(name);
             if (group == null) {
                 ctx.getSource().sendFeedback(TextParser.parse(CONFIG.messages.noGroupError), true);
                 return 1;
@@ -723,7 +704,7 @@ public class Commands {
                 return 1;
             }
 
-            if (!(DATABASE.changePrimaryGroup(uuid, group))) {
+            if (!(Group.setPrimary(uuid, group))) {
                 ctx.getSource().sendFeedback(TextParser.parse(CONFIG.messages.unknownError), true);
                 return 1;
             }
@@ -746,9 +727,9 @@ public class Commands {
         Group group;
         try {
             String name = ctx.getArgument("name", String.class);
-            group = DATABASE.getGroup(name);
+            group = Group.get(name);
         } catch (IllegalArgumentException e) {
-            group = DATABASE.getPrimaryGroup(player.getUuid());
+            group = Group.getPrimaryMembership(player.getUuid());
         }
 
         if (group == null) {
@@ -787,7 +768,6 @@ public class Commands {
         return 0;
     }
 
-    // old stuff
 
     private static int switchChatDefaultCommand(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
         ServerPlayerEntity player = ctx.getSource().getPlayer();
@@ -804,7 +784,7 @@ public class Commands {
         ServerPlayerEntity player = ctx.getSource().getPlayer();
         
 
-        Group group = DATABASE.getGroup(chatName);
+        Group group = Group.get(chatName);
         if (group == null) {
             ctx.getSource().sendFeedback(TextParser.parse(CONFIG.messages.noGroupError), false);
             return 1;
@@ -836,54 +816,6 @@ public class Commands {
         CONFIG = ConfigManager.loadConfigFile(MultiChats.CONFIG_FILE);
         PRIMARY_GROUP_TIMER = new TimerManager(CONFIG.primaryGroupSwitchCooldownSeconds);
         ctx.getSource().sendFeedback(TextParser.parse("Reloaded config!"), true);
-        return 0;
-    }
-
-    private static int createChat(CommandContext<ServerCommandSource> ctx) {
-        String chatName = ctx.getArgument("name", String.class);
-        String prefix = ctx.getArgument("prefix", String.class);
-
-        String displayName;
-        try {
-            displayName = ctx.getArgument("displayName", String.class);
-        } catch (Exception e) {
-            displayName = chatName;
-        }
-
-        String displayNameShort;
-        try {
-            displayNameShort = ctx.getArgument("displayNameShort", String.class);
-        } catch (Exception e) {
-            displayNameShort = displayName;
-        }
-
-        if (DATABASE.getGroup(chatName) != null) {
-            ctx.getSource().sendFeedback(TextParser.parse("<red>That group already exists"), true);
-            return 1;
-        }
-
-        Group group = new Group(chatName);
-        group.displayName = TextParser.parse(displayName);
-        group.displayNameShort = TextParser.parse(displayNameShort);
-        group.prefix = prefix;
-        group.save();
-
-        ctx.getSource().sendFeedback(TextParser.parse("Group \"" + chatName + "\" created\nTo assign this group to players use the node <green>multichats.chat." + chatName), true);
-        return 0;
-    }
-
-    private static int deleteChat(CommandContext<ServerCommandSource> ctx) {
-        String chatName = ctx.getArgument("name", String.class);
-        Group group = DATABASE.getGroup(chatName);
-
-        if (group == null) {
-            ctx.getSource().sendFeedback(TextParser.parse("<red>That chat doesn't exist"), true);
-            return 1;
-        }
-
-        group.delete();
-
-        ctx.getSource().sendFeedback(TextParser.parse("Group \"" + chatName + "\" deleted"), true);
         return 0;
     }
 

@@ -1,22 +1,16 @@
 package nl.enjarai.multichats;
 
-import eu.pb4.placeholders.PlaceholderAPI;
-import eu.pb4.placeholders.PlaceholderResult;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.text.LiteralText;
-import net.minecraft.util.Identifier;
 import nl.enjarai.multichats.commands.Commands;
 import nl.enjarai.multichats.commands.InviteManager;
 import nl.enjarai.multichats.database.DatabaseHandlerInterface;
 import nl.enjarai.multichats.database.SQLiteDatabase;
-import nl.enjarai.multichats.types.Group;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
-import java.sql.SQLException;
 
 public class MultiChats implements ModInitializer {
 	// This logger is used to write text to the console and the log file.
@@ -25,7 +19,7 @@ public class MultiChats implements ModInitializer {
 	public static final Logger LOGGER = LogManager.getLogger("MultiChats");
 	public static MinecraftServer SERVER;
 
-	public static final String VERSION = "2.1.3";
+	public static final String VERSION = "2.2.0";
 	public static final File CONFIG_FILE = new File("config/multichats.json");
 	public static final String DATABASE_FILE ="config/multichats.db";
 
@@ -53,7 +47,7 @@ public class MultiChats implements ModInitializer {
 			DATABASE = null;
 		});
 
-		LOGGER.info("Whomst pingeth?");
+		LOGGER.info("Whomst pingeth? (v"+VERSION+")");
 	}
 
 	private static void onServerStarting(MinecraftServer server) {
