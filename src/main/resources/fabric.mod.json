@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "id": "essentialsnt",
+  "version": "${version}",
+  "name": "Essentialsn't",
+  "description": "",
+  "authors": [
+    "enjarai"
+  ],
+  "contact": {
+    "website": "enjarai.nl"
+  },
+  "license": "MIT",
+  "icon": "assets/essentialsnt/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "nl.enjarai.essentialsnt.Essentialsnt"
+    ]
+  },
+  "mixins": [
+    "essentialsnt.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.12.5",
+    "fabric": "*",
+    "minecraft": "1.17.1"
+  }
+}
