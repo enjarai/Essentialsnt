@@ -1,7 +1,9 @@
 package nl.enjarai.essentialsnt.commands;
 
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.tree.LiteralCommandNode;
 import eu.pb4.placeholders.PlaceholderAPI;
 import eu.pb4.placeholders.TextParser;
 import me.lucko.fabric.api.permissions.v0.Permissions;
@@ -22,6 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import static net.minecraft.server.command.CommandManager.argument;
 import static net.minecraft.server.command.CommandManager.literal;
 import static nl.enjarai.essentialsnt.Essentialsnt.*;
 
@@ -52,6 +55,47 @@ public class Commands {
             dispatcher.register(literal("setspawn")
                     .requires(Permissions.require("essentialsnt.commands.spawn.set", 3))
                     .executes(Commands::setSpawn)
+            );
+
+            LiteralCommandNode<ServerCommandSource> warp = dispatcher.register(literal("warp")
+                    .requires(Permissions.require("essentialsnt.commands.warp", true))
+                    .requires(Predicates.isPlayerPredicate())
+                    .then(argument("name", StringArgumentType.string())
+                            .executes(Commands::warp)
+                            .then(literal("set")
+                                    .requires(Permissions.require("essentialsnt.commands.warp.set", 3))
+                                    .executes(ctx -> modWarp(ctx, ModificationType.SET))
+                            )
+                            .then(literal("delete")
+                                    .requires(Permissions.require("essentialsnt.commands.warp.delete", 3))
+                                    .executes(ctx -> modWarp(ctx, ModificationType.DELETE))
+                            )
+                    )
+            );
+            dispatcher.register(literal("wtp")
+                    .redirect(warp)
+            );
+            dispatcher.register(literal("warps")
+                    .requires(Permissions.require("essentialsnt.commands.warps", true))
+                    .requires(Predicates.isPlayerPredicate())
+                    .executes(Commands::warps)
+            );
+            dispatcher.register(literal("listwarps")
+                    .requires(Permissions.require("essentialsnt.commands.warps", true))
+                    .requires(Predicates.isPlayerPredicate())
+                    .executes(Commands::warps)
+            );
+            dispatcher.register(literal("setwarp")
+                    .requires(Permissions.require("essentialsnt.commands.warp.set", 3))
+                    .then(argument("name", StringArgumentType.string())
+                            .executes(ctx -> modWarp(ctx, ModificationType.SET))
+                    )
+            );
+            dispatcher.register(literal("delwarp")
+                    .requires(Permissions.require("essentialsnt.commands.warp.delete", 3))
+                    .then(argument("name", StringArgumentType.string())
+                            .executes(ctx -> modWarp(ctx, ModificationType.DELETE))
+                    )
             );
         });
     }
@@ -147,7 +191,28 @@ public class Commands {
         ServerPlayerEntity player = ctx.getSource().getPlayer();
         HashMap<String, Location> accessibleWarps = Helpers.getAccessibleWarps(player);
 
-        // TODO
+        if (accessibleWarps.isEmpty()) {
+            ctx.getSource().sendFeedback(TextParser.parse(CONFIG.messages.warps_none), true);
+        } else {
+            Set<String> warpNames = accessibleWarps.keySet();
+
+            StringBuilder formatted = new StringBuilder("  <dark_aqua><yellow>");
+            String separator;
+            for (int i = warpNames.size() - 1; i >= 0; i--) {
+                if (i == 0) {
+                    separator = "</yellow>";
+                } else if (i == 1) {
+                    separator = "</yellow> and <yellow>";
+                } else {
+                    separator = "</yellow>, <yellow>";
+                }
+
+                formatted.append(warpNames.toArray()[i]).append(separator);
+            }
+
+            ctx.getSource().sendFeedback(TextParser.parse(CONFIG.messages.warps), true);
+            ctx.getSource().sendFeedback(TextParser.parse(formatted.toString()), true);
+        }
 
         return 1;
     }
