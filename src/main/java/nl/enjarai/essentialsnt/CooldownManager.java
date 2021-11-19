@@ -11,7 +11,7 @@ public class CooldownManager {
         this.duration = duration * 1000;
     }
 
-    public boolean checkAndTouch(UUID uuid) {
+    public boolean checkAndTouch(UUID uuid) { // TODO: fix
         long time = System.currentTimeMillis();
 
         if (timers.get(uuid) != null && timers.get(uuid) + duration < time) {
