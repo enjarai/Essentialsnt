@@ -17,6 +17,9 @@ public class ConfigManager {
 
     // Config values
     public int teleport_delay = 3;
+    public int wild_cooldown = 600;
+    public int wild_min_range = 200;
+    public int wild_max_range = 2000;
 
     public Location spawn = null;
 
@@ -31,9 +34,12 @@ public class ConfigManager {
         public String warp_set = "<dark_aqua>Warp <yellow>${name}</yellow> set to current location.";
         public String warp_delete = "<dark_aqua>Warp <yellow>${name}</yellow> deleted.";
         public String warp_not_exists = "<red>That warp doesn't exist.";
-
         public String warps = "<dark_aqua>You have access to the following warps:";
         public String warps_none = "<dark_aqua>You don't have access to any warps.";
+
+        public String wild = "<dark_aqua>Teleporting you to a random location.";
+        public String wild_cooldown = "<red>You cant use /wild right now, please wait 10 minutes.";
+        public String wild_error = "<red>Error, can't find a valid location to teleport to.";
 
         public String teleporting = "<dark_aqua>Teleporting...";
         public String teleporting_wait = "<dark_aqua>Teleportation commencing in <yellow>${duration}</yellow> seconds. Please wait...";

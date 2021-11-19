@@ -1,4 +1,4 @@
-package nl.enjarai.essentialsnt;
+package nl.enjarai.essentialsnt.api;
 
 import eu.pb4.placeholders.PlaceholderAPI;
 import eu.pb4.placeholders.TextParser;
@@ -15,7 +15,7 @@ import java.util.TimerTask;
 
 import static nl.enjarai.essentialsnt.Essentialsnt.CONFIG;
 
-public class TeleportManager {
+public class DelayedTPAPI {
     public static void delayedTeleport(ServerPlayerEntity player, Location destination, Integer seconds) {
         Vec3d oldPos = player.getPos();
 
