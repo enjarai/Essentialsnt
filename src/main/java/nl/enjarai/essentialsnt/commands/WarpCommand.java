@@ -15,11 +15,11 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.Vec3d;
-import nl.enjarai.essentialsnt.Helpers;
 import nl.enjarai.essentialsnt.api.DelayedTPAPI;
 import nl.enjarai.essentialsnt.types.Location;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 import static net.minecraft.server.command.CommandManager.argument;
@@ -32,10 +32,9 @@ public class WarpCommand {
         CommandRegistrationCallback.EVENT.register((dispatcher, dedicated) -> {
             LiteralCommandNode<ServerCommandSource> warp = dispatcher.register(literal("warp")
                     .requires(Permissions.require("essentialsnt.commands.warp", true))
-                    .requires(Predicates.isPlayerPredicate())
                     .then(argument("name", StringArgumentType.string())
                             .suggests((ctx, builder) -> CommandSource.suggestMatching(
-                                    Helpers.getAccessibleWarps(ctx.getSource().getPlayer()).keySet(), builder))
+                                    getAccessibleWarps(ctx.getSource().getPlayer()).keySet(), builder))
                             .executes(WarpCommand::warp)
                             .then(literal("set")
                                     .requires(Permissions.require("essentialsnt.commands.warp.set", 3))
@@ -52,19 +51,17 @@ public class WarpCommand {
             );
             dispatcher.register(literal("warps")
                     .requires(Permissions.require("essentialsnt.commands.warps", true))
-                    .requires(Predicates.isPlayerPredicate())
                     .executes(WarpCommand::warps)
             );
             dispatcher.register(literal("listwarps")
                     .requires(Permissions.require("essentialsnt.commands.warps", true))
-                    .requires(Predicates.isPlayerPredicate())
                     .executes(WarpCommand::warps)
             );
             dispatcher.register(literal("setwarp")
                     .requires(Permissions.require("essentialsnt.commands.warp.set", 3))
                     .then(argument("name", StringArgumentType.string())
                             .suggests((ctx, builder) -> CommandSource.suggestMatching(
-                                    Helpers.getAccessibleWarps(ctx.getSource().getPlayer()).keySet(), builder))
+                                    getAccessibleWarps(ctx.getSource().getPlayer()).keySet(), builder))
                             .executes(ctx -> WarpCommand.modWarp(ctx, ModificationType.SET))
                     )
             );
@@ -72,7 +69,7 @@ public class WarpCommand {
                     .requires(Permissions.require("essentialsnt.commands.warp.delete", 3))
                     .then(argument("name", StringArgumentType.string())
                             .suggests((ctx, builder) -> CommandSource.suggestMatching(
-                                    Helpers.getAccessibleWarps(ctx.getSource().getPlayer()).keySet(), builder))
+                                    getAccessibleWarps(ctx.getSource().getPlayer()).keySet(), builder))
                             .executes(ctx -> WarpCommand.modWarp(ctx, ModificationType.DELETE))
                     )
             );
@@ -148,7 +145,7 @@ public class WarpCommand {
 
     private static int warps(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
         ServerPlayerEntity player = ctx.getSource().getPlayer();
-        HashMap<String, Location> accessibleWarps = Helpers.getAccessibleWarps(player);
+        HashMap<String, Location> accessibleWarps = getAccessibleWarps(player);
 
         if (accessibleWarps.isEmpty()) {
             ctx.getSource().sendFeedback(TextParser.parse(CONFIG.messages.warps_none), true);
@@ -174,5 +171,16 @@ public class WarpCommand {
         }
 
         return 1;
+    }
+
+
+    private static HashMap<String, Location> getAccessibleWarps(ServerPlayerEntity player) {
+        HashMap<String, Location> result = new HashMap<>();
+        for (Map.Entry<String, Location> warp : CONFIG.warps.entrySet()) {
+            if (Permissions.check(player, "essentialsnt.warps." + warp.getKey(), true)) {
+                result.put(warp.getKey(), warp.getValue());
+            }
+        }
+        return result;
     }
 }

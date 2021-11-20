@@ -16,6 +16,10 @@ import java.util.TimerTask;
 import static nl.enjarai.essentialsnt.Essentialsnt.CONFIG;
 
 public class DelayedTPAPI {
+    public static void delayedTeleport(ServerPlayerEntity player, Location destination) {
+        delayedTeleport(player, destination, CONFIG.teleport_delay);
+    }
+
     public static void delayedTeleport(ServerPlayerEntity player, Location destination, Integer seconds) {
         Vec3d oldPos = player.getPos();
 

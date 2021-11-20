@@ -6,10 +6,11 @@ import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
 import net.minecraft.server.command.ServerCommandSource;
 import nl.enjarai.essentialsnt.ConfigManager;
-import nl.enjarai.essentialsnt.CooldownManager;
+import nl.enjarai.essentialsnt.TimerManager;
 
 import static net.minecraft.server.command.CommandManager.literal;
-import static nl.enjarai.essentialsnt.Essentialsnt.*;
+import static nl.enjarai.essentialsnt.Essentialsnt.CONFIG;
+import static nl.enjarai.essentialsnt.Essentialsnt.CONFIG_FILE;
 
 public class ManagementCommands {
     public static void register() {
@@ -26,7 +27,7 @@ public class ManagementCommands {
 
     private static int reload(CommandContext<ServerCommandSource> ctx) {
         CONFIG = ConfigManager.loadConfigFile(CONFIG_FILE);
-        WildCommand.COOLDOWN = new CooldownManager(CONFIG.wild_cooldown);
+        WildCommand.COOLDOWN = new TimerManager(CONFIG.wild_cooldown);
         // TODO reload all timers and shit
         ctx.getSource().sendFeedback(TextParser.parse("Reloaded Essentialsn't config!"), true);
         return 1;

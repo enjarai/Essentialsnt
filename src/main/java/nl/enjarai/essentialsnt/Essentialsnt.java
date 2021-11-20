@@ -5,14 +5,13 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.minecraft.server.MinecraftServer;
-import nl.enjarai.essentialsnt.commands.ManagementCommands;
-import nl.enjarai.essentialsnt.commands.SpawnCommand;
-import nl.enjarai.essentialsnt.commands.WarpCommand;
-import nl.enjarai.essentialsnt.commands.WildCommand;
+import nl.enjarai.essentialsnt.commands.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class Essentialsnt implements ModInitializer {
     public static final Logger LOGGER = LogManager.getLogger("Essentialsn't");
@@ -29,6 +28,15 @@ public class Essentialsnt implements ModInitializer {
         SpawnCommand.register();
         WarpCommand.register();
         WildCommand.register();
+        MsgCommand.register();
+
+        Timer timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                CONFIG.saveConfigFile(CONFIG_FILE);
+            }
+        }, 60000, 60000);
 
         LOGGER.info("Essentials bad lol, even i can do better");
     }

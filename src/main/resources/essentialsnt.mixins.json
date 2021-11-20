@@ -4,6 +4,7 @@
   "package": "nl.enjarai.essentialsnt.mixin",
   "compatibilityLevel": "JAVA_16",
   "mixins": [
+    "MessageCommandMixin"
   ],
   "client": [
   ],

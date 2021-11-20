@@ -21,7 +21,6 @@ public class SpawnCommand {
         CommandRegistrationCallback.EVENT.register((dispatcher, dedicated) -> {
             dispatcher.register(literal("spawn")
                     .requires(Permissions.require("essentialsnt.commands.spawn", true))
-                    .requires(Predicates.isPlayerPredicate())
                     .executes(SpawnCommand::spawn)
                     .then(literal("set")
                             .requires(Permissions.require("essentialsnt.commands.spawn.set", 3))
@@ -30,8 +29,11 @@ public class SpawnCommand {
             );
             dispatcher.register(literal("stp")
                     .requires(Permissions.require("essentialsnt.commands.spawn", true))
-                    .requires(Predicates.isPlayerPredicate())
                     .executes(SpawnCommand::spawn)
+                    .then(literal("set")
+                            .requires(Permissions.require("essentialsnt.commands.spawn.set", 3))
+                            .executes(SpawnCommand::setSpawn)
+                    )
             );
             dispatcher.register(literal("setspawn")
                     .requires(Permissions.require("essentialsnt.commands.spawn.set", 3))

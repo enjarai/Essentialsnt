@@ -6,7 +6,9 @@ import nl.enjarai.essentialsnt.types.Location;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 
 public class ConfigManager {
     private static final Gson gson = new GsonBuilder()
@@ -25,6 +27,8 @@ public class ConfigManager {
 
     public HashMap<String, Location> warps = new HashMap<>();
 
+    public HashSet<String> socialspy_enabled = new HashSet<>();
+
     public Messages messages = new Messages();
     public static class Messages {
         public String spawn = "<dark_aqua>Teleporting to spawn.";
@@ -40,6 +44,14 @@ public class ConfigManager {
         public String wild = "<dark_aqua>Teleporting you to a random location.";
         public String wild_cooldown = "<red>You cant use /wild right now, please wait 10 minutes.";
         public String wild_error = "<red>Error, can't find a valid location to teleport to.";
+
+        public String msg = "${sender} <dark_aqua>-></dark_aqua> ${receiver} <dark_gray>»</dark_gray> <white>${message}";
+        public String msg_send = "<dark_aqua>you -></dark_aqua> ${receiver} <dark_gray>»</dark_gray> <white>${message}";
+        public String msg_receive = "${sender} <dark_aqua>-> you</dark_aqua> <dark_gray>»</dark_gray> <white>${message}";
+        public String msg_no_player = "<red>Can't find that player.";
+
+        public String socialspy_enable = "<dark_aqua>Socialspy is now <green>enabled</green>.";
+        public String socialspy_disable = "<dark_aqua>Socialspy is now <red>disabled</red>.";
 
         public String teleporting = "<dark_aqua>Teleporting...";
         public String teleporting_wait = "<dark_aqua>Teleportation commencing in <yellow>${duration}</yellow> seconds. Please wait...";
