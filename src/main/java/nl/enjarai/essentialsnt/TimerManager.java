@@ -11,7 +11,7 @@ public class TimerManager {
         this.duration = durationSecs * 1000L;
     }
 
-    public boolean canTrigger(UUID uuid) {
+    public boolean trigger(UUID uuid) {
         Long triggered = lastTriggered.get(uuid);
         long currentTime = System.currentTimeMillis();
 
@@ -24,5 +24,16 @@ public class TimerManager {
 
     public void resetCooldown(UUID uuid) {
         lastTriggered.remove(uuid);
+    }
+
+    public void touch(UUID uuid) {
+        lastTriggered.put(uuid, System.currentTimeMillis());
+    }
+
+    public boolean check(UUID uuid) {
+        Long triggered = lastTriggered.get(uuid);
+        long currentTime = System.currentTimeMillis();
+
+        return triggered == null || triggered < currentTime - duration;
     }
 }

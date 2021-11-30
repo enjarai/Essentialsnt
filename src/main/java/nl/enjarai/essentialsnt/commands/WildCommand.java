@@ -2,7 +2,6 @@ package nl.enjarai.essentialsnt.commands;
 
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import com.mojang.brigadier.tree.LiteralCommandNode;
 import eu.pb4.placeholders.TextParser;
 import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
@@ -39,7 +38,7 @@ public class WildCommand {
         ServerPlayerEntity player = ctx.getSource().getPlayer();
 
         if (!(Permissions.check(player, "essentialsnt.bypass.wildcooldown", false) ||
-                COOLDOWN.canTrigger(player.getUuid()))) {
+                COOLDOWN.check(player.getUuid()))) {
             ctx.getSource().sendFeedback(TextParser.parse(CONFIG.messages.wild_cooldown), true);
             return 0;
         }
@@ -47,8 +46,8 @@ public class WildCommand {
         ctx.getSource().sendFeedback(TextParser.parse(CONFIG.messages.wild), true);
         try {
             RandomTPAPI.randomTeleport(player, player.getServerWorld(), CONFIG.wild_min_range, CONFIG.wild_max_range);
+            COOLDOWN.trigger(player.getUuid());
         } catch (RandomTPAPI.NoValidLocationException e) {
-            COOLDOWN.resetCooldown(player.getUuid());
             ctx.getSource().sendFeedback(TextParser.parse(CONFIG.messages.wild_error), true);
         }
 
