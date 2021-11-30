@@ -26,17 +26,14 @@ public class SocialSpyAPI {
     }
 
     public static boolean check(ServerPlayerEntity player) {
-        return check(player.getUuid());
-    }
-    public static boolean check(UUID uuid) {
-        return CONFIG.socialspy_enabled.contains(uuid.toString());
+        return Permissions.check(player, "essentialsnt.commands.socialspy", 3) &&
+                CONFIG.socialspy_enabled.contains(player.getUuid().toString());
     }
 
     public static void sendToAll(Text message, ServerPlayerEntity... excluded) {
         for (ServerPlayerEntity player : Essentialsnt.SERVER.getPlayerManager().getPlayerList()) {
             if (
                     check(player) &&
-                    Permissions.check(player, "essentialsnt.commands.socialspy", 3) &&
                     !List.of(excluded).contains(player)
             ) {
                 player.sendMessage(message, false);
