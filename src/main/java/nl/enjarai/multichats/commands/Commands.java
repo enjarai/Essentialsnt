@@ -16,8 +16,9 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
-import net.minecraft.util.UserCache;
 import net.minecraft.util.math.Vec3d;
+import nl.enjarai.essentialsnt.api.DelayedTPAPI;
+import nl.enjarai.essentialsnt.types.Location;
 import nl.enjarai.multichats.ConfigManager;
 import nl.enjarai.multichats.Helpers;
 import nl.enjarai.multichats.MultiChats;
@@ -25,7 +26,9 @@ import nl.enjarai.multichats.PlayerChatTracker;
 import nl.enjarai.multichats.types.Group;
 import nl.enjarai.multichats.types.GroupPermissionLevel;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.UUID;
 import java.util.regex.Pattern;
 
 import static net.minecraft.server.command.CommandManager.argument;
@@ -57,7 +60,6 @@ public class Commands {
             );
             LiteralCommandNode<ServerCommandSource> alliance = dispatcher.register(literal("alliance")
                 .requires(Permissions.require("multichats.commands.alliance", true))
-                .requires(Predicates.isPlayerPredicate())
                 .executes(Commands::help)
                 .then(literal("create")
                     .requires(Permissions.require("multichats.commands.alliance.create", true))
@@ -175,12 +177,12 @@ public class Commands {
                             )
                         )
                         .then(literal("displayName")
-                            .then(argument("string", StringArgumentType.string())
+                            .then(argument("string", StringArgumentType.greedyString())
                                 .executes(ctx -> modifyGroup(ctx, ModificationType.DISPLAY_NAME))
                             )
                         )
                         .then(literal("displayNameShort")
-                            .then(argument("string", StringArgumentType.string())
+                            .then(argument("string", StringArgumentType.greedyString())
                                 .executes(ctx -> modifyGroup(ctx, ModificationType.DISPLAY_NAME_SHORT))
                             )
                         )
@@ -201,6 +203,7 @@ public class Commands {
                 )
             );
             dispatcher.register(literal("al")
+                .requires(Permissions.require("multichats.commands.alliance", true))
                 .executes(Commands::help)
                 .redirect(alliance)
             );
@@ -463,7 +466,7 @@ public class Commands {
                     if (group.eligibleForHome()) {
                         Vec3d pos = player.getPos();
                         group.setHome((int) Math.floor(pos.x), (int) Math.floor(pos.y), (int) Math.floor(pos.z),
-                                player.getServerWorld().getRegistryKey().getValue().toString());
+                                player.getWorld().getRegistryKey().getValue().toString());
                         success = group.save();
                     } else {
                         error = CONFIG.messages.notEligibleForHomeError;
@@ -752,8 +755,9 @@ public class Commands {
             return 1;
         }
 
-        player.teleport(group.getHomeDim(), group.homePos.x + 0.5, group.homePos.y, group.homePos.z + 0.5,
-                player.getYaw(), player.getPitch());
+        Location location = new Location(
+                new Vec3d(group.homePos.x + 0.5, group.homePos.y, group.homePos.z + 0.5), group.getHomeDim());
+        DelayedTPAPI.delayedTeleport(player, location);
 
 
         HashMap<String, Text> placeholders = new HashMap<>();
@@ -768,6 +772,7 @@ public class Commands {
         return 0;
     }
 
+    // TODO: ALLIANCE SUBJIGATION
 
     private static int switchChatDefaultCommand(CommandContext<ServerCommandSource> ctx) throws CommandSyntaxException {
         ServerPlayerEntity player = ctx.getSource().getPlayer();

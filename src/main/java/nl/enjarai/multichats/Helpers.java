@@ -7,6 +7,7 @@ import net.minecraft.network.packet.s2c.play.PlayerListS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
+import nl.enjarai.essentialsnt.api.SocialSpyAPI;
 import nl.enjarai.multichats.types.Group;
 import nl.enjarai.multichats.types.GroupPermissionLevel;
 
@@ -31,7 +32,7 @@ public class Helpers {
         MultiChats.LOGGER.info(output.getString());
 
         MultiChats.SERVER.getPlayerManager().getPlayerList().forEach(player -> {
-            if (group.checkAccess(player.getUuid()) || Permissions.check(player, "multichats.receive_all")) {
+            if (group.checkAccess(player.getUuid()) || SocialSpyAPI.check(player)) {
                 player.sendMessage(output, false);
             }
         });

@@ -7,6 +7,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import nl.enjarai.multichats.Helpers;
 import nl.enjarai.multichats.PlayerChatTracker;
 import nl.enjarai.multichats.types.Group;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -17,12 +18,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class ServerPlayNetworkHandlerMixin {
 	@Shadow
 	public ServerPlayerEntity player;
-	@Shadow
-	private MinecraftServer server;
 
-	@Shadow private int messageCooldown;
-
-	@Inject(method = "onGameMessage", at = @At(value = "INVOKE", target = "Ljava/lang/String;startsWith(Ljava/lang/String;)Z", shift = At.Shift.BEFORE), cancellable = true)
+	@Inject(method = "onChatMessage", at = @At(value = "INVOKE", target = "Ljava/lang/String;startsWith(Ljava/lang/String;)Z", shift = At.Shift.BEFORE), cancellable = true)
 	public void broadcastChatMessage(ChatMessageC2SPacket packet, CallbackInfo info) {
 		String message = packet.getChatMessage();
 

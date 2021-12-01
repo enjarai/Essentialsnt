@@ -6,7 +6,7 @@
   "name": "MultiChats",
   "description": "Create seperate chats managed by permission nodes.",
   "authors": [
-    "Me!"
+    "enjarai"
   ],
   "contact": {
     "homepage": "https://fabricmc.net/",
@@ -29,8 +29,8 @@
   "depends": {
     "fabricloader": ">=0.11.3",
     "fabric": "*",
-    "minecraft": "1.17.x",
-    "java": ">=16",
+    "minecraft": "*",
+    "java": ">=17",
     "fabric-permissions-api-v0": "*",
     "placeholder-api": ">=1.1.1+1.17.1"
   },
