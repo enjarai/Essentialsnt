@@ -45,7 +45,7 @@ public class WildCommand {
 
         ctx.getSource().sendFeedback(TextParser.parse(CONFIG.messages.wild), true);
         try {
-            RandomTPAPI.randomTeleport(player, player.getServerWorld(), CONFIG.wild_min_range, CONFIG.wild_max_range);
+            RandomTPAPI.randomTeleport(player, player.getWorld(), CONFIG.wild_min_range, CONFIG.wild_max_range);
             COOLDOWN.trigger(player.getUuid());
         } catch (RandomTPAPI.NoValidLocationException e) {
             ctx.getSource().sendFeedback(TextParser.parse(CONFIG.messages.wild_error), true);
