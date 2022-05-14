@@ -15,7 +15,10 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "nl.enjarai.essentialsnt.Essentialsnt"
+      {
+        "adapter": "kotlin",
+        "value": "nl.enjarai.essentialsnt.Essentialsnt"
+      }
     ]
   },
   "mixins": [
