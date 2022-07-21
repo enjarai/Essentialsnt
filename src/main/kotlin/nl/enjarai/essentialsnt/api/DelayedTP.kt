@@ -8,21 +8,21 @@ import net.minecraft.text.LiteralText
 import net.minecraft.text.Text
 import nl.enjarai.essentialsnt.Essentialsnt.GENERAL_CONFIG
 import nl.enjarai.essentialsnt.Essentialsnt.MESSAGES_CONFIG
-import nl.enjarai.essentialsnt.types.Location
+import nl.enjarai.essentialsnt.types.ConfigLocation
 import java.util.*
 
 object DelayedTP {
     const val DELAY_BYPASS_PERMISSION_NODE = "essentialsnt.bypass.tpdelay"
 
-    fun delayedTeleport(player: ServerPlayerEntity, destination: Location) {
+    fun delayedTeleport(player: ServerPlayerEntity, destination: ConfigLocation) {
         delayedTeleport(player, destination, object : TPCallback {})
     }
 
-    fun delayedTeleport(player: ServerPlayerEntity, destination: Location, callback: TPCallback) {
+    fun delayedTeleport(player: ServerPlayerEntity, destination: ConfigLocation, callback: TPCallback) {
         delayedTeleport(player, destination, GENERAL_CONFIG.teleport_delay, callback)
     }
 
-    fun delayedTeleport(player: ServerPlayerEntity, destination: Location, seconds: Int) {
+    fun delayedTeleport(player: ServerPlayerEntity, destination: ConfigLocation, seconds: Int) {
         delayedTeleport(
             player,
             destination,
@@ -31,7 +31,7 @@ object DelayedTP {
         )
     }
 
-    fun delayedTeleport(player: ServerPlayerEntity, destination: Location, seconds: Int, callback: TPCallback) {
+    fun delayedTeleport(player: ServerPlayerEntity, destination: ConfigLocation, seconds: Int, callback: TPCallback) {
         val oldPos = player.pos
         if (Permissions.check(player, DELAY_BYPASS_PERMISSION_NODE, false)) {
             destination.teleportHere(player)
@@ -63,7 +63,7 @@ object DelayedTP {
     }
 
     interface TPCallback {
-        fun success(player: ServerPlayerEntity, destination: Location) {}
-        fun failure(player: ServerPlayerEntity, destination: Location) {}
+        fun success(player: ServerPlayerEntity, destination: ConfigLocation) {}
+        fun failure(player: ServerPlayerEntity, destination: ConfigLocation) {}
     }
 }

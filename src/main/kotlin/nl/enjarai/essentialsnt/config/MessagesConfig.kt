@@ -26,6 +26,14 @@ class MessagesConfig : ModConfig {
     var teleporting = "<dark_aqua>Teleporting..."
     var teleporting_wait = "<dark_aqua>Teleportation commencing in <yellow>\${duration}</yellow> seconds. Please wait..."
     var moved = "<red>You moved, teleportation cancelled."
+    var vote_none = "<red>There is no vote in progress."
+    var vote_in_progress = "<red>There is already a vote in progress."
+    var vote_start = "<dark_aqua><yellow>\${sender}</yellow> started a vote for <yellow>\${type}</yellow>.\n" +
+            "Click here to vote <run_cmd:'/vote yes'><green>[Yes]</green></run_cmd> or <run_cmd:'/vote no'><red>[No]</red></run_cmd>."
+    var vote_cast = "<dark_aqua>You voted \${vote}."
+    var vote_already_voted = "<red>You already voted."
+    var vote_fail = "<dark_aqua>Time vote failed."
+    var vote_success = "<dark_aqua>Time vote succeeded."
 
     override fun getConfigFile(): File {
         return CONFIG_DIR.resolve("messages.json").toFile()

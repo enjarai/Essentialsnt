@@ -1,7 +1,7 @@
 package nl.enjarai.essentialsnt.config
 
 import nl.enjarai.essentialsnt.Essentialsnt.CONFIG_DIR
-import nl.enjarai.essentialsnt.types.Location
+import nl.enjarai.essentialsnt.types.ConfigLocation
 import java.io.File
 import java.util.*
 
@@ -10,10 +10,11 @@ class GeneralConfig : ModConfig {
     var wild_cooldown = 600
     var wild_min_range = 200
     var wild_max_range = 2000
+    var dayvote_duration = 20
 
-    var spawn: Location? = null
+    var spawn: ConfigLocation? = null
 
-    var warps = HashMap<String, Location>()
+    var warps = HashMap<String, ConfigLocation>()
 
     var socialspy_enabled = HashSet<UUID>()
 

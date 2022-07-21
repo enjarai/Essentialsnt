@@ -31,7 +31,7 @@ object SocialSpy {
                 GENERAL_CONFIG.socialspy_enabled.contains(player.uuid)
     }
 
-    fun sendToAll(message: Text?, vararg excluded: ServerPlayerEntity?) {
+    fun sendToAll(message: Text, vararg excluded: ServerPlayerEntity) {
         for (player in SERVER.playerManager.playerList) {
             if (check(player) && !listOf(*excluded).contains(player)
             ) {

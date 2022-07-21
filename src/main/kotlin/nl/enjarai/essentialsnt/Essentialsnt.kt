@@ -5,6 +5,7 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
 import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.server.MinecraftServer
 import nl.enjarai.essentialsnt.commands.*
+import nl.enjarai.essentialsnt.commands.dayvote.DayVoteCommand
 import nl.enjarai.essentialsnt.config.GeneralConfig
 import nl.enjarai.essentialsnt.config.MessagesConfig
 import nl.enjarai.essentialsnt.config.ModConfig
@@ -33,6 +34,7 @@ object Essentialsnt : ModInitializer {
         WarpCommands.register()
         WildCommands.register()
         MessageCommands.register()
+        DayVoteCommand.register()
 
         val timer = Timer()
         timer.schedule(object : TimerTask() {

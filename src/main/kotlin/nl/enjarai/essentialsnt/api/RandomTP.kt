@@ -9,7 +9,7 @@ import net.minecraft.util.math.Vec3d
 import net.minecraft.world.World
 import nl.enjarai.essentialsnt.Essentialsnt.GENERAL_CONFIG
 import nl.enjarai.essentialsnt.Essentialsnt.LOGGER
-import nl.enjarai.essentialsnt.types.Location
+import nl.enjarai.essentialsnt.types.ConfigLocation
 import java.util.*
 import kotlin.math.abs
 import kotlin.math.roundToInt
@@ -56,7 +56,7 @@ object RandomTP {
                 }
             }
             DelayedTP.delayedTeleport(
-                player, Location(
+                player, ConfigLocation(
                     Vec3d(
                         x.toDouble(), y.toDouble(),
                         z.toDouble()

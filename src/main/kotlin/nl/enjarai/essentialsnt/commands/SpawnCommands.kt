@@ -10,7 +10,7 @@ import net.minecraft.server.command.ServerCommandSource
 import nl.enjarai.essentialsnt.Essentialsnt.GENERAL_CONFIG
 import nl.enjarai.essentialsnt.Essentialsnt.MESSAGES_CONFIG
 import nl.enjarai.essentialsnt.api.DelayedTP
-import nl.enjarai.essentialsnt.types.Location
+import nl.enjarai.essentialsnt.types.ConfigLocation
 
 object SpawnCommands {
     const val SPAWN_PERMISSION_NODE = "essentialsnt.commands.spawn"
@@ -50,7 +50,7 @@ object SpawnCommands {
     private fun setSpawn(ctx: CommandContext<ServerCommandSource>): Int {
         val pos = ctx.source.position
         val dim = ctx.source.world
-        GENERAL_CONFIG.spawn = Location(pos, dim)
+        GENERAL_CONFIG.spawn = ConfigLocation(pos, dim)
         GENERAL_CONFIG.save()
         ctx.source.sendFeedback(TextParser.parse(MESSAGES_CONFIG.spawn_set), true)
         return 1

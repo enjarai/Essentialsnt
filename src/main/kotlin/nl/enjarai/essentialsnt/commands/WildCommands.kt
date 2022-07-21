@@ -12,7 +12,7 @@ import nl.enjarai.essentialsnt.Essentialsnt.GENERAL_CONFIG
 import nl.enjarai.essentialsnt.Essentialsnt.MESSAGES_CONFIG
 import nl.enjarai.essentialsnt.api.DelayedTP
 import nl.enjarai.essentialsnt.api.RandomTP
-import nl.enjarai.essentialsnt.types.Location
+import nl.enjarai.essentialsnt.types.ConfigLocation
 import nl.enjarai.essentialsnt.util.Cooldown
 
 object WildCommands {
@@ -58,7 +58,7 @@ object WildCommands {
                 GENERAL_CONFIG.wild_min_range,
                 GENERAL_CONFIG.wild_max_range,
                 object : DelayedTP.TPCallback {
-                    override fun failure(player: ServerPlayerEntity, destination: Location) {
+                    override fun failure(player: ServerPlayerEntity, destination: ConfigLocation) {
                         COOLDOWN.resetCooldown(player.uuid)
                     }
                 }

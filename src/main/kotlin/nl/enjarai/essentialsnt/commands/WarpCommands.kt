@@ -17,7 +17,7 @@ import net.minecraft.text.Text
 import nl.enjarai.essentialsnt.Essentialsnt.GENERAL_CONFIG
 import nl.enjarai.essentialsnt.Essentialsnt.MESSAGES_CONFIG
 import nl.enjarai.essentialsnt.api.DelayedTP
-import nl.enjarai.essentialsnt.types.Location
+import nl.enjarai.essentialsnt.types.ConfigLocation
 
 object WarpCommands {
     const val WARP_PERMISSION_NODE = "essentialsnt.commands.warp"
@@ -117,7 +117,7 @@ object WarpCommands {
         val dim = ctx.source.world
         val message = when (modType) {
             ModificationType.SET -> {
-                GENERAL_CONFIG.warps.put(name, Location(pos, dim))
+                GENERAL_CONFIG.warps.put(name, ConfigLocation(pos, dim))
                 MESSAGES_CONFIG.warp_set
             }
             ModificationType.DELETE -> {
@@ -165,7 +165,7 @@ object WarpCommands {
 
     private fun warps(ctx: CommandContext<ServerCommandSource>): Int {
         val player = ctx.source.player
-        val accessibleWarps: HashMap<String, Location> = getAccessibleWarps(player)
+        val accessibleWarps: HashMap<String, ConfigLocation> = getAccessibleWarps(player)
         if (accessibleWarps.isEmpty()) {
             ctx.source.sendFeedback(TextParser.parse(MESSAGES_CONFIG.warps_none), true)
         } else {
@@ -189,8 +189,8 @@ object WarpCommands {
     }
 
 
-    private fun getAccessibleWarps(player: ServerPlayerEntity): HashMap<String, Location> {
-        val result: HashMap<String, Location> = HashMap()
+    private fun getAccessibleWarps(player: ServerPlayerEntity): HashMap<String, ConfigLocation> {
+        val result: HashMap<String, ConfigLocation> = HashMap()
         for ((key, value) in GENERAL_CONFIG.warps.entries) {
             if (Permissions.check(player, "essentialsnt.warps.$key", true)) {
                 result[key] = value

@@ -9,7 +9,7 @@ import net.minecraft.util.registry.RegistryKey
 import nl.enjarai.essentialsnt.Essentialsnt.SERVER
 import kotlin.math.floor
 
-class Location(pos: Vec3d, dim: ServerWorld) {
+class ConfigLocation(pos: Vec3d, dim: ServerWorld) {
     var position: Array<Int>
     var dimension: String
 
